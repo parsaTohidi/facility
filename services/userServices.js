@@ -120,39 +120,6 @@ methods.login = function (input, password, callback) {
         }
 }
 
-methods.forgetPassword = function(email, callback){
-    if (validator.isEmail(email)) {
-        users.findOne({email : email}, function (err, user) {
-            if(err){
-                callback(500,err)
-            }
-            else if (!user) {
-                callback(400,"ایمیل وارد شده موجود نمیباشد")
-            }
-            else{
-                var id = shortid.generate().substring(0,8);
-                console.log(id)
-
-                user.password = id;
-
-                user.save((err) => {
-                    if (err) {
-                        callback(500, err)
-                    }
-                    else {
-                        //ersaal pasword ba nodemailer
-                        sendPasswordLink(email, id)
-                        callback(null, null,id)
-                    }
-                })
-            }
-        })
-    }
-    else{
-        callback(400,"ایمیل وارد شده صحیح نمیباشد")
-    }
-}
-
 methods.showProfile = function(user, callback){
     users.findOne({_id : user._id},{verifCode:0, active:0, goldUser:0}
         ,function (err, user) {
@@ -198,6 +165,49 @@ methods.editProfile = function (user, name, familyName, username, password, phon
     })
 }
 
+methods.forgetPassword = (email, callback) => {
+    users.findOne({ email : email} , (err, user) => {
+        if (err) {
+            callback(500, err)
+        }
+        else {
+
+            user.code = code
+
+            var transport = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'reactGroupKhu@gmail.com', // my mail
+                    pass: 'sharabesadsale'
+                }
+            });
+
+            var mailOptions = {
+                from: 'reactGroupKhu@gmail.com', // sender address
+                to: `${email}`, // list of receivers
+                subject: 'changing password', // Subject line
+                text: `your code is : ${code}`// plain text body
+            };
+
+            transport.sendMail(mailOptions, function (err, info) {
+                if(err)
+                    console.error(err)
+                else
+                    console.log(info)
+            });
+
+            user.save((err)=>{
+                if(err){
+                    callback(500,err)
+                }
+                else{
+                    callback(null,null)
+                }
+            })
+
+        }
+    })
+}
 
 
 module.exports = methods;

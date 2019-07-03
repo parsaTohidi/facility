@@ -22,6 +22,9 @@ var userSchema = new mongoose.Schema ({
     phoneNumber :{
         type : String,
         required : true
+    },
+    code : {
+        type : String
     }
 });
 

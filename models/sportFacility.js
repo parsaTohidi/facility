@@ -8,13 +8,17 @@ var adminSchema = new mongoose.Schema ({
     description : {
         type : String
     },
-    email: {
+    phoneNumber: {
         type : String
     },
     type :{
         type : String,
         enum : ["futsal","football","billiard","pool"]
+    },
+    address : {
+        type : String
     }
+
 });
 
 
