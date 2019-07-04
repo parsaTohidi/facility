@@ -171,43 +171,83 @@ methods.forgetPassword = (email, callback) => {
             callback(500, err)
         }
         else {
+            if (!user) {
+                callback(404, 'کاربری یافت نشد')
+            }
 
-            user.code = code
+            else {
 
-            var transport = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'reactGroupKhu@gmail.com', // my mail
-                    pass: 'sharabesadsale'
+                var code = ''
+                for (var i = 0; i < 5; i++) {
+                    code += Math.floor(Math.random() * 10)
                 }
-            });
 
-            var mailOptions = {
-                from: 'reactGroupKhu@gmail.com', // sender address
-                to: `${email}`, // list of receivers
-                subject: 'changing password', // Subject line
-                text: `your code is : ${code}`// plain text body
-            };
+                user.code = code
 
-            transport.sendMail(mailOptions, function (err, info) {
-                if(err)
-                    console.error(err)
-                else
-                    console.log(info)
-            });
+                var transport = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: 'reactGroupKhu@gmail.com', // my mail
+                        pass: 'sharabesadsale'
+                    }
+                });
 
-            user.save((err)=>{
-                if(err){
-                    callback(500,err)
-                }
-                else{
-                    callback(null,null)
-                }
-            })
+                var mailOptions = {
+                    from: 'reactGroupKhu@gmail.com', // sender address
+                    to: `${user.email}`, // list of receivers
+                    subject: 'forget password: \n', // Subject line
+                    text: `your code is : ${code}`// plain text body
+                };
+
+                transport.sendMail(mailOptions, function (err, info) {
+                    if(err)
+                        console.error(err)
+                    else
+                        console.log(info)
+                });
+
+                user.save((err)=>{
+                    if(err){
+                        callback(500,err)
+                    }
+                    else{
+                        callback(null,null)
+                    }
+                })
+
+            }
+
 
         }
     })
 }
 
+
+methods.forgetPasswordVerify = (email, code, callback) => {
+    users.findOne({ email : email} , (err, user) => {
+        if (err) {
+            callback(500, err)
+        }
+        else {
+            if (!user) {
+                callback(404, 'کاربری یافت نشد')
+            }
+
+            else {
+
+                if (user.code === code) {
+
+                    callback(null,null)
+
+                }
+                else {
+                    callback(404, 'کد وارد شده صحیح نمیباشد')
+                }
+
+            }
+
+        }
+    })
+}
 
 module.exports = methods;

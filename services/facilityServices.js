@@ -5,6 +5,7 @@ var validator = require('validator');
 
 var users = require("../models/user");
 var facility = require("../models/sportFacility");
+var Reservation = require("../models/reservation");
 
 var methods = {};
 
@@ -25,13 +26,44 @@ methods.facilityDetails = (facilityId, callback) => {
             callback(500, err)
         }
         else {
-            callback(null, null, facil)
+
+            Reservation.findOne({facilityId : facilityId}, (err, reserved) => {
+                if (err) {
+                    callback(500, err)
+                }
+                else {
+
+                    callback(null, null, facil, reserved)
+
+                }
+            })
+
         }
     })
 }
 
 
+methods.addToFavorite = (facilityId, callback) => {
+    facility.findOne({_id : facilityId}, (err, facil) => {
+        if (err) {
+            callback(500, err)
+        }
+        else {
 
+            Reservation.findOne({facilityId : facilityId}, (err, reserved) => {
+                if (err) {
+                    callback(500, err)
+                }
+                else {
+
+                    callback(null, null, facil, reserved)
+
+                }
+            })
+
+        }
+    })
+}
 
 
 module.exports = methods;

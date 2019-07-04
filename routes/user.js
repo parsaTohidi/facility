@@ -98,7 +98,7 @@ router.post("/register",function (req, res, next) {
 });
 
 router.post("/forget/password", function (req, res, next) {
-    userServices.forgetPassword(req.body.email.toLowerCase(), (errCode,errTxt,token)=>{
+    userServices.forgetPassword(req.body.email.toLowerCase(), (errCode,errTxt)=>{
         if(errCode){
             console.log(errTxt)
             res.status(errCode).send({
@@ -108,8 +108,24 @@ router.post("/forget/password", function (req, res, next) {
         }
         else{
             res.status(200).send({
-                success : true,
-                token : token
+                success : true
+            })
+        }
+    })
+})
+
+router.post("/forget/password/verify", function (req, res, next) {
+    userServices.forgetPasswordVerify(req.body.email.toLowerCase(), req.body.code, (errCode,errTxt)=>{
+        if(errCode){
+            console.log(errTxt)
+            res.status(errCode).send({
+                success : false,
+                error : errTxt
+            })
+        }
+        else{
+            res.status(200).send({
+                success : true
             })
         }
     })
