@@ -7,6 +7,7 @@ var mongoose      = require('mongoose');
 var config = require('./config/config')
 var userRouter = require('./routes/user');
 var indexRouter = require('./routes/index');
+var facilityRouter = require('./routes/facility');
 
 
 var app = express();
@@ -22,6 +23,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users', userRouter);
+app.use('/facility', facilityRouter);
 app.use('/', indexRouter);
 
 

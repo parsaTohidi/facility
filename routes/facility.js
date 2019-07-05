@@ -9,8 +9,8 @@ var facillityService = require("../services/facilityServices")
 var secretKey = "salon";
 var User = require("../models/user");
 
-router.post("/list" , function (req, res, next) {
-    facillityService.getFacility(req.body.type,  (errCode,errTxt,facilities) => {
+router.get("/list/:type" , function (req, res, next) {
+    facillityService.getFacility(req.params.type,  (errCode,errTxt,facilities) => {
         if(errCode){
             console.log(errTxt)
             res.status(errCode).send({
@@ -84,7 +84,7 @@ router.get("/favorites/:type" , function (req, res, next) {
     })
 })
 
-router.post("/add/facility" , function (req, res, next) {
+router.post("/add" , function (req, res, next) {
     facillityService.addFacility(
         req.body.name,
         req.body.description,
