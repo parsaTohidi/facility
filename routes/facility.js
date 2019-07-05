@@ -120,6 +120,44 @@ router.get("/favorites" , Auth, function (req, res, next) {
     })
 })
 
+router.post("/reserved" , Auth, function (req, res, next) {
+    let userId = req.user ? req.user._id : ''
+    facillityService.getReservedTimesOfDay(req.body.facilityId, JSON.parse(req.body.day),  (errCode,errTxt,reserved) => {
+        if(errCode){
+            console.log(errTxt)
+            res.status(errCode).send({
+                success : false,
+                error : errTxt
+            })
+        }
+        else {
+            res.status(200).send({
+                success : true,
+                reserved : reserved
+            })
+        }
+    })
+})
+
+router.post("/reserve/time" , Auth, function (req, res, next) {
+    let userId = req.user ? req.user._id : ''
+    facillityService.reserveTime(userId, req.body.facilityId, JSON.parse(req.body.day), JSON.parse(req.body.time),  (errCode,errTxt,reserved) => {
+        if(errCode){
+            console.log(errTxt)
+            res.status(errCode).send({
+                success : false,
+                error : errTxt
+            })
+        }
+        else {
+            res.status(200).send({
+                success : true,
+                reserved : reserved
+            })
+        }
+    })
+})
+
 router.post("/add" , function (req, res, next) {
     facillityService.addFacility(
         req.body.name,

@@ -120,4 +120,59 @@ methods.addFacility = (name, description, phoneNumber, type, address, callback) 
 
 }
 
+methods.getReservedTimesOfDay = (facilityId, day, callback) => {
+    Reservation.find({facilityId : facilityId, day : day}, (err, reserved) => {
+        if (err) {
+            callback(500, err)
+        }
+        else {
+            callback(null, null, reserved)
+        }
+    })
+}
+
+methods.reserveTime = (userId, facilityId, day, time, callback) => {
+    Reservation.find({facilityId : facilityId, day : day, time : time}, (err, reserved) => {
+        if (err) {
+            callback(500, err)
+        }
+        else {
+            if (reserved) {
+                callback(400, 'سانس انتخاب شده رزرو شده است')
+            }
+            else {
+                facility.findOne({_id : facilityId}, (err, facility) => {
+                    if (err) {
+                        callback(500, err)
+                    }
+                    else {
+                        if (!facility) {
+                            callback(404, 'مکان ورزشی مورد نظر یافت نشد')
+                        }
+                        else {
+                            newReserve = new Reservation({
+                                userId : userId,
+                                facilityId: facilityId,
+                                time : time,
+                                day : day
+                            })
+
+                            newReserve.save((err) => {
+                               if (err) {
+                                   callback(500, err)
+                               }
+                               else {
+                                   callback(null, null)
+                               }
+                            })
+                        }
+                    }
+                })
+            }
+        }
+    })
+}
+
+
+
 module.exports = methods;

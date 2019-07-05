@@ -10,6 +10,9 @@ var reserveSchema = new mongoose.Schema ({
     },
     facilityId: {
         type : String
+    },
+    userId : {
+        type : String
     }
 
 });
