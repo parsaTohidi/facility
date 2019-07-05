@@ -25,7 +25,12 @@ var userSchema = new mongoose.Schema ({
     },
     code : {
         type : String
-    }
+    },
+    favorites : [
+        {
+            type : String
+        }
+    ]
 });
 
 

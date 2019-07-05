@@ -120,9 +120,8 @@ methods.login = function (input, password, callback) {
         }
 }
 
-methods.showProfile = function(user, callback){
-    users.findOne({_id : user._id},{verifCode:0, active:0, goldUser:0}
-        ,function (err, user) {
+methods.showProfile = function(callback){
+    users.findOne({}, function (err, user) {
             if(err){
                 callback(500,err)
             }
@@ -135,9 +134,9 @@ methods.showProfile = function(user, callback){
         })
 }
 
-methods.editProfile = function (user, name, familyName, username, password, phoneNumber, email, callback) {
+methods.editProfile = function (name, familyName, username, password, phoneNumber, email, callback) {
 
-    users.findOne({_id : user._id},function (err, existUser) {
+    users.findOne({},function (err, existUser) {
         if(err){
             callback(500,err);
         }

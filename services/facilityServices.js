@@ -50,14 +50,21 @@ methods.addToFavorite = (facilityId, callback) => {
         }
         else {
 
-            Reservation.findOne({facilityId : facilityId}, (err, reserved) => {
+            users.findOne({}, (err, user) => {
                 if (err) {
-                    callback(500, err)
+
                 }
                 else {
+                    user.favorites.push({facilityId})
 
-                    callback(null, null, facil, reserved)
-
+                    user.save((err => {
+                        if (err) {
+                            callback(500, err)
+                        }
+                        else {
+                            callback(null, null)
+                        }
+                    }))
                 }
             })
 
@@ -65,5 +72,45 @@ methods.addToFavorite = (facilityId, callback) => {
     })
 }
 
+methods.getFavorites = (callback) => {
+    users.findOne({}, (err, user) => {
+        if (err) {
+            callback(500, err)
+        }
+        else {
+
+            facility.find({ _id : {$in : user.favorites}}, ( err, facilities) => {
+                if (err) {
+                    callback(500, err)
+                }
+                else {
+                    callback(null, null, facilities)
+                }
+            })
+
+        }
+    })
+}
+
+methods.addFacility = (name, description, phoneNumber, type, address, callback) => {
+
+    var newFacil = new facility({
+        name : name,
+        description : description,
+        phoneNumber : phoneNumber,
+        type : type,
+        address : address
+    })
+
+    newFacil.save((err, facil) => {
+        if (err) {
+            callback(500, err)
+        }
+        else {
+            callback(null, null, facil)
+        }
+    })
+
+}
 
 module.exports = methods;

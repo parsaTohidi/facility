@@ -66,6 +66,46 @@ router.post("/add/favorites" , function (req, res, next) {
     })
 })
 
+router.get("/favorites/:type" , function (req, res, next) {
+    facillityService.getFacility(req.params.type,  (errCode,errTxt,facilities) => {
+        if(errCode){
+            console.log(errTxt)
+            res.status(errCode).send({
+                success : false,
+                error : errTxt
+            })
+        }
+        else {
+            res.status(200).send({
+                success : true,
+                facilities : facilities
+            })
+        }
+    })
+})
 
+router.post("/add/facility" , function (req, res, next) {
+    facillityService.addFacility(
+        req.body.name,
+        req.body.description,
+        req.body.phoneNumber,
+        req.body.type,
+        req.body.address,
+        (errCode,errTxt,facility) => {
+        if(errCode){
+            console.log(errTxt)
+            res.status(errCode).send({
+                success : false,
+                error : errTxt
+            })
+        }
+        else {
+            res.status(200).send({
+                success : true,
+                facility : facility
+            })
+        }
+    })
+})
 
 module.exports = router;
