@@ -120,8 +120,8 @@ methods.login = function (input, password, callback) {
         }
 }
 
-methods.showProfile = function(callback){
-    users.findOne({}, function (err, user) {
+methods.showProfile = function(userId, callback){
+    users.findOne({_id : userId}, { password : 0}, function (err, user) {
             if(err){
                 callback(500,err)
             }
@@ -134,9 +134,9 @@ methods.showProfile = function(callback){
         })
 }
 
-methods.editProfile = function (name, familyName, username, password, phoneNumber, email, callback) {
+methods.editProfile = function (userId, name, familyName, username, password, phoneNumber, email, callback) {
 
-    users.findOne({},function (err, existUser) {
+    users.findOne({_id : userId},function (err, existUser) {
         if(err){
             callback(500,err);
         }
@@ -145,14 +145,14 @@ methods.editProfile = function (name, familyName, username, password, phoneNumbe
             callback(400,"کاربر موجود نیست")
         }
         else {
-            user.name = name
-            user.familyName = familyName
-            user.email = email
-            user.password = password
-            user.username = username
-            user.phoneNumber = phoneNumber
+            existUser.name = name
+            existUser.familyName = familyName
+            existUser.email = email
+            existUser.password = password
+            existUser.username = username
+            existUser.phoneNumber = phoneNumber
 
-            user.save((err)=>{
+            existUser.save((err)=>{
                 if(err){
                     callback(500,err)
                 }

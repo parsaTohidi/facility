@@ -9,6 +9,42 @@ var facillityService = require("../services/facilityServices")
 var secretKey = "salon";
 var User = require("../models/user");
 
+var Auth = function (req, res, next) {
+    var token = req.headers.token;
+    if(token){
+        jwt.verify(token, secretKey, function(err, decoded) {
+            if (err) {
+
+                res.status(500).send({
+                    "error": err
+                });
+            }
+            else {
+                User.findOne({
+                    _id: decoded.id
+                }, function(err, user) {
+                    if (err) res.status(500).send({
+                        "error": err
+                    });
+                    else if (!user) {
+                        res.status(404).send({
+                            error : 'کاربری برای استفاده از محتویات یافت نشد'
+                        })
+                    } else {
+                        req.user = user;
+                        next();
+                    }
+                })
+            }
+        });
+    }
+    else{
+        res.status(400).send({
+            error : 'توکن برای اهراط هویت ارایه نشده است'
+        })
+    }
+}
+
 router.get("/list/:type" , function (req, res, next) {
     facillityService.getFacility(req.params.type,  (errCode,errTxt,facilities) => {
         if(errCode){
@@ -29,7 +65,7 @@ router.get("/list/:type" , function (req, res, next) {
 
 
 router.get("/details/:facilityId" , function (req, res, next) {
-    facillityService.facilityDetails(req.params.facilityId,  (errCode,errTxt,facil, reserved) => {
+    facillityService.facilityDetails(req.params.facilityId,  (errCode,errTxt,facil) => {
         if(errCode){
             console.log(errTxt)
             res.status(errCode).send({
@@ -40,15 +76,16 @@ router.get("/details/:facilityId" , function (req, res, next) {
         else {
             res.status(200).send({
                 success : true,
-                fasil : fasil,
-                reserved : reserved
+                facil : facil
             })
         }
     })
 })
 
-router.post("/add/favorites" , function (req, res, next) {
-    facillityService.facilityDetails(req.params.facilityId,  (errCode,errTxt,facil, reserved) => {
+router.post("/add/favorites" , Auth, function (req, res, next) {
+    let userId = req.user ? req.user._id : ''
+
+    facillityService.addToFavorite(userId, req.body.facilityId,  (errCode,errTxt) => {
         if(errCode){
             console.log(errTxt)
             res.status(errCode).send({
@@ -58,16 +95,15 @@ router.post("/add/favorites" , function (req, res, next) {
         }
         else {
             res.status(200).send({
-                success : true,
-                fasil : fasil,
-                reserved : reserved
+                success : true
             })
         }
     })
 })
 
-router.get("/favorites/:type" , function (req, res, next) {
-    facillityService.getFacility(req.params.type,  (errCode,errTxt,facilities) => {
+router.get("/favorites" , Auth, function (req, res, next) {
+    let userId = req.user ? req.user._id : ''
+    facillityService.getFavorites(userId,  (errCode,errTxt,facilities) => {
         if(errCode){
             console.log(errTxt)
             res.status(errCode).send({

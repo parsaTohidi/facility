@@ -10,11 +10,11 @@ var secretKey = "salon";
 var User = require("../models/user");
 
 var Auth = function (req, res, next) {
-    var token = req.cookies.token;
+    var token = req.headers.token;
     if(token){
         jwt.verify(token, secretKey, function(err, decoded) {
             if (err) {
-                res.clearCookie('token')
+
                 res.status(500).send({
                     "error": err
                 });
@@ -27,7 +27,9 @@ var Auth = function (req, res, next) {
                         "error": err
                     });
                     else if (!user) {
-                        res.status(404).sendFile(path.join(__dirname , "/../public/home/login.html"))
+                        res.status(404).send({
+                            error : 'کاربری برای استفاده از محتویات یافت نشد'
+                        })
                     } else {
                         req.user = user;
                         next();
@@ -37,23 +39,11 @@ var Auth = function (req, res, next) {
         });
     }
     else{
-        res.status(401).sendFile(path.join(__dirname , "/../public/home/login.html"))
+        res.status(400).send({
+            error : 'توکن برای اهراط هویت ارایه نشده است'
+        })
     }
 }
-
-router.post("/logout" , Auth , function (req, res, next) {
-    if(req.user._id) {
-        res.clearCookie('token')
-        res.status(200).send({
-            success : true
-        })
-    }
-    else{
-        res.status(500).send({
-            success : false
-        })
-    }
-})
 
 router.post("/login",function (req, res, next) {
     userServices.login(req.body.email,req.body.password, (errCode,errTxt,token)=>{
@@ -132,7 +122,9 @@ router.post("/forget/password/verify", function (req, res, next) {
 })
 
 router.get("/show/profile", Auth , function (req, res, next) {
-    userServices.showProfile(req.user,(errTxt,errCode,user)=>{
+    let userId = req.user ? req.user._id : ''
+
+    userServices.showProfile(userId,(errTxt,errCode,user)=>{
         if(errCode){
             res.status(errCode).send({
                 error : errTxt
@@ -148,8 +140,9 @@ router.get("/show/profile", Auth , function (req, res, next) {
 })
 
 router.post("/edit", Auth ,function (req, res, next) {
+    let userId = req.user ? req.user._id : ''
 
-    userServices.editProfile(req.user, req.body.name, req.body.familyName, req.body.username, req.body.password, req.body.phoneNumber, req.body.email, (errCode,errTxt)=>{
+    userServices.editProfile(userId, req.body.name, req.body.familyName, req.body.username, req.body.password, req.body.phoneNumber, req.body.email, (errCode,errTxt)=>{
         if(errCode){
             res.status(errCode).send({
                 error : errTxt

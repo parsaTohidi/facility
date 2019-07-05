@@ -27,66 +27,73 @@ methods.facilityDetails = (facilityId, callback) => {
         }
         else {
 
-            Reservation.findOne({facilityId : facilityId}, (err, reserved) => {
-                if (err) {
-                    callback(500, err)
-                }
-                else {
-
-                    callback(null, null, facil, reserved)
-
-                }
-            })
+            if (!facil) {
+                callback(404, 'مکان ورزشی یافت نشد')
+            }
+            else {
+                callback(null, null, facil)
+            }
 
         }
     })
 }
 
 
-methods.addToFavorite = (facilityId, callback) => {
+methods.addToFavorite = (userId, facilityId, callback) => {
     facility.findOne({_id : facilityId}, (err, facil) => {
         if (err) {
             callback(500, err)
         }
         else {
+            if (!facil) {
+                callback(404, 'مکان ورزشی یافت نشد')
+            }
+            else {
+                users.findOne({_id : userId}, (err, user) => {
+                    if (err) {
 
-            users.findOne({}, (err, user) => {
-                if (err) {
+                    }
+                    else {
+                        user.favorites.push({
+                            _id : facil._id
+                        })
 
-                }
-                else {
-                    user.favorites.push({facilityId})
-
-                    user.save((err => {
-                        if (err) {
-                            callback(500, err)
-                        }
-                        else {
-                            callback(null, null)
-                        }
-                    }))
-                }
-            })
+                        user.save((err => {
+                            if (err) {
+                                callback(500, err)
+                            }
+                            else {
+                                callback(null, null)
+                            }
+                        }))
+                    }
+                })
+            }
 
         }
     })
 }
 
-methods.getFavorites = (callback) => {
-    users.findOne({}, (err, user) => {
+methods.getFavorites = (userId, callback) => {
+    users.findOne({_id : userId}, (err, user) => {
         if (err) {
             callback(500, err)
         }
         else {
 
-            facility.find({ _id : {$in : user.favorites}}, ( err, facilities) => {
-                if (err) {
-                    callback(500, err)
-                }
-                else {
-                    callback(null, null, facilities)
-                }
-            })
+            if (!user) {
+                callback(404, 'کاربری یافت نشد')
+            }
+            else {
+                facility.find({ _id : {$in : user.favorites}}, ( err, facilities) => {
+                    if (err) {
+                        callback(500, err)
+                    }
+                    else {
+                        callback(null, null, facilities)
+                    }
+                })
+            }
 
         }
     })
